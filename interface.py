@@ -2,6 +2,7 @@ import streamlit as st
 import cv2
 import numpy as np
 import time
+import os
 from scipy.sparse import diags, eye
 from scipy.sparse.linalg import spsolve
 
@@ -62,14 +63,31 @@ st.title("Studio de Tone Mapping Multi-Échelle (Filtre WLS)")
 
 # --- BARRE LATÉRALE (Contrôles principaux) ---
 st.sidebar.header("1. Configuration")
-uploaded_file = st.sidebar.file_uploader("Charge une image test (JPG/PNG)", type=["jpg", "jpeg", "png"])
 
-if uploaded_file is not None:
-    # Lecture de l'image depuis l'upload
-    file_bytes = np.asarray(bytearray(uploaded_file.read()), dtype=np.uint8)
-    img_bgr = cv2.imdecode(file_bytes, 1)
+# AJOUT : Choix de la source de l'image
+image_source = st.sidebar.radio(
+    "Source de l'image", 
+    ["Image de démo (castle.jpg)", "Uploader une image personnelle"]
+)
+
+img_bgr = None
+
+# Logique de chargement selon le choix
+if image_source == "Image de démo (castle.jpg)":
+    if os.path.exists('castle.jpg'):
+        img_bgr = cv2.imread('castle.jpg')
+    else:
+        st.sidebar.error("Le fichier 'castle.jpg' est introuvable. Vérifie qu'il est bien sur GitHub !")
+else:
+    uploaded_file = st.sidebar.file_uploader("Charge une image test (JPG/PNG)", type=["jpg", "jpeg", "png"])
+    if uploaded_file is not None:
+        file_bytes = np.asarray(bytearray(uploaded_file.read()), dtype=np.uint8)
+        img_bgr = cv2.imdecode(file_bytes, 1)
+
+# Si une image est chargée (soit par défaut, soit uploadée), on affiche la suite
+if img_bgr is not None:
     
-    # Sécurité taille (on redimensionne si c'est trop grand pour éviter que spsolve ne plante ton PC)
+    # Sécurité taille (on redimensionne si c'est trop grand pour éviter que spsolve ne plante)
     h, w = img_bgr.shape[:2]
     if max(h, w) > 800:
         scale = 800 / max(h, w)
@@ -80,7 +98,7 @@ if uploaded_file is not None:
     img_float = img_rgb.astype(np.float32) / 255.0
 
     # Paramètre Alpha
-    alpha = st.sidebar.number_input("Paramètre Alpha (Sensibilité aux contours)", min_value=0.5, max_value=3.0, value=1.2, step=0.1)
+    alpha = st.sidebar.number_input("Paramètre Alpha (Sensibilité contours)", min_value=0.5, max_value=3.0, value=1.2, step=0.1)
 
     # Bouton de calcul lourd
     if st.sidebar.button("Calculer les couches WLS", type="primary"):
@@ -131,6 +149,6 @@ if 'd1' in st.session_state:
     with col_img1:
         st.image(st.session_state['img_float'], caption="Image Originale", use_container_width=True)
     with col_img2:
-        st.image(img_finale, caption=f"Résultat Multi-Échelle", use_container_width=True)
+        st.image(img_finale, caption="Résultat Multi-Échelle", use_container_width=True)
 else:
-    st.info("< Charge une image et clique sur 'Calculer les couches WLS' dans le menu de gauche pour commencer.")
+    st.info("👈 Sélectionne une image et clique sur 'Calculer les couches WLS' dans le menu de gauche pour commencer.")
