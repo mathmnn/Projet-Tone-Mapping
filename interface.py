@@ -58,7 +58,7 @@ def recombine_multiscale(image_orig, base1, base2, base3, lf, lm, lc):
 # ==========================================
 
 st.set_page_config(page_title="HDR Multi-Scale Tone Mapping", layout="wide")
-st.title("🎛️ Studio de Tone Mapping Multi-Échelle (Filtre WLS)")
+st.title("Studio de Tone Mapping Multi-Échelle (Filtre WLS)")
 
 # --- BARRE LATÉRALE (Contrôles principaux) ---
 st.sidebar.header("1. Configuration")
@@ -83,7 +83,7 @@ if uploaded_file is not None:
     alpha = st.sidebar.number_input("Paramètre Alpha (Sensibilité aux contours)", min_value=0.5, max_value=3.0, value=1.2, step=0.1)
 
     # Bouton de calcul lourd
-    if st.sidebar.button("🚀 Calculer les couches WLS", type="primary"):
+    if st.sidebar.button("Calculer les couches WLS", type="primary"):
         start_time = time.time()
         
         # Barre de progression
@@ -109,7 +109,7 @@ if uploaded_file is not None:
 
 # --- ZONE PRINCIPALE (Modifications instantanées) ---
 if 'd1' in st.session_state:
-    st.success(f"⏱️ Couches calculées en {st.session_state['calc_time']:.2f} secondes. Tu peux maintenant manipuler les détails en temps réel !")
+    st.success(f" Couches calculées en {st.session_state['calc_time']:.2f} secondes. Tu peux maintenant manipuler les détails en temps réel !")
     
     col1, col2, col3 = st.columns(3)
     with col1:
@@ -133,4 +133,4 @@ if 'd1' in st.session_state:
     with col_img2:
         st.image(img_finale, caption=f"Résultat Multi-Échelle", use_container_width=True)
 else:
-    st.info("👈 Charge une image et clique sur 'Calculer les couches WLS' dans le menu de gauche pour commencer.")
+    st.info("< Charge une image et clique sur 'Calculer les couches WLS' dans le menu de gauche pour commencer.")
